@@ -30,4 +30,7 @@ build/
 !**/src/test/**/build/
 
 ### VS Code ###
-.vscode/
+.vscode/# Ignore Spring Boot local properties
+
+# Ignore Spring Boot local properties
+/src/main/resources/application.properties
