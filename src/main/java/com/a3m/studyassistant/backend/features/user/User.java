@@ -26,7 +26,7 @@ public class User {
     private LocalDate dob;
 
     @Enumerated(EnumType.STRING)
-    private UserRole role = UserRole.STUDENT;
+    private UserRole role;
 
     public User() {}
 

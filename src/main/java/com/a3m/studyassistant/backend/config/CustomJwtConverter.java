@@ -27,7 +27,7 @@ public class CustomJwtConverter implements Converter<Jwt, AbstractAuthentication
         Map<String, Object> appMetadata = jwt.getClaim("app_metadata");
 
         if (appMetadata != null && appMetadata.containsKey("role")) {
-            String role = (String) appMetadata.get("role"); // e.g., "ADMIN"
+            String role = (String) appMetadata.get("role") == null ? "STUDENT" : (String) appMetadata.get("role"); // e.g., "ADMIN"
 
             // 3. Add the ROLE_ prefix so @PreAuthorize("hasRole('ADMIN')") works
             GrantedAuthority customRole = new SimpleGrantedAuthority("ROLE_" + role.toUpperCase());

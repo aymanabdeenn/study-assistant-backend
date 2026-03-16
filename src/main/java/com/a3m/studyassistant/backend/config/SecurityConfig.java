@@ -15,21 +15,21 @@ import javax.crypto.spec.SecretKeySpec;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Bean
-    public JwtDecoder jwtDecoder(
-            @Value("${spring.security.oauth2.resourceserver.jwt.secret-key}") String secret
-            , @Value("${jwt.algorithm}") String algorithm
-    ) {
-        String javaAlg = switch (algorithm.toUpperCase()) {
-            case "HS256" -> "HmacSHA256";
-            case "HS384" -> "HmacSHA384";
-            case "HS512" -> "HmacSHA512";
-            default -> throw new IllegalArgumentException("Unsupported algorithm: " + algorithm);
-        };
-
-        SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(), javaAlg);
-        return NimbusJwtDecoder.withSecretKey(secretKey).build();
-    }
+//    @Bean
+//    public JwtDecoder jwtDecoder(
+//            @Value("${spring.security.oauth2.resourceserver.jwt.secret-key}") String secret
+//            , @Value("${jwt.algorithm}") String algorithm
+//    ) {
+//        String javaAlg = switch (algorithm.toUpperCase()) {
+//            case "HS256" -> "HmacSHA256";
+//            case "HS384" -> "HmacSHA384";
+//            case "HS512" -> "HmacSHA512";
+//            default -> throw new IllegalArgumentException("Unsupported algorithm: " + algorithm);
+//        };
+//
+//        SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(), javaAlg);
+//        return NimbusJwtDecoder.withSecretKey(secretKey).build();
+//    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -37,6 +37,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/public/**").permitAll()
+                        .requestMatchers("/api/users/sync").authenticated()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
