@@ -15,7 +15,7 @@ public class StudyAssistantBackendApplication {
 	@Bean
 	public CommandLineRunner commandLineRunner(String[] args) {
 		return runner -> {
-			System.out.println("Hello, World!");
+			System.out.println("The server is UP & RUNNING!");
 		};
 	}
 
