@@ -1,8 +1,10 @@
 package com.a3m.studyassistant.backend.features.user;
 
+import com.a3m.studyassistant.backend.features.topic.Topic;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -27,6 +29,9 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    @OneToMany(mappedBy = "user")
+    private List<Topic> topics;
 
     public User() {}
 
