@@ -1,6 +1,7 @@
 package com.a3m.studyassistant.backend.features.user;
 
 import com.a3m.studyassistant.backend.features.topic.Topic;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -30,6 +31,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<Topic> topics;
 

@@ -2,6 +2,7 @@ package com.a3m.studyassistant.backend.features.topic;
 
 import com.a3m.studyassistant.backend.features.branch.Branch;
 import com.a3m.studyassistant.backend.features.user.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -23,6 +24,7 @@ public class Topic {
     @Column(name = "description")
     private String description;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
