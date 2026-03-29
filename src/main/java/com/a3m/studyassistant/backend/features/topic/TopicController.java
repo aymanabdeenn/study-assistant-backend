@@ -42,7 +42,7 @@ public class TopicController {
         return ResponseEntity.ok(topic);
     }
 
-    @PatchMapping("/modify/{topicId}")
+    @PatchMapping("/{topicId}")
     public ResponseEntity<?> modifyTopic(@PathVariable UUID topicId, @AuthenticationPrincipal Jwt jwt, @RequestBody TopicModificationDTO dto) {
         UUID userId = UUID.fromString(jwt.getSubject());
         Topic topic = topicService.modifyTopic(topicId, userId, dto.getTitle(), dto.getDescription());
