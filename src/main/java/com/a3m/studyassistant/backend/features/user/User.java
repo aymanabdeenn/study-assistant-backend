@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,16 +33,19 @@ public class User {
     private UserRole role;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Topic> topics;
 
-    public User() {}
+    public User() {
+        this.topics = new ArrayList<>();
+    }
 
     public User(String firstName, String lastName, String email, LocalDate dob) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.dob = dob;
+        this.topics = new ArrayList<>();
     }
 
     public User(UUID id, String firstName, String lastName, String email, LocalDate dob) {
@@ -50,6 +54,7 @@ public class User {
         this.lastName = lastName;
         this.email = email;
         this.dob = dob;
+        this.topics = new ArrayList<>();
     }
 
     public UUID getId() {

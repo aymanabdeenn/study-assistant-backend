@@ -22,8 +22,10 @@ public class TopicService {
         this.topicRepository = topicRepository;
     }
 
-    public Topic getTopicById(UUID topicId) {
-        return topicRepository.findById(topicId).orElseThrow(() -> new TopicNotFoundException("Topic with id " + topicId + " couldn't be found!"));
+    public Topic getTopicById(UUID userId, UUID topicId) {
+        Topic topic = topicRepository.findById(topicId).orElseThrow(() -> new TopicNotFoundException("Topic with id " + topicId + " couldn't be found!"));
+        if(!topic.getUser().getId().equals(userId)) throw new UnauthorizedException("You cannot retrieve a topic you do not own.");
+        return topic;
     }
 
     public List<Topic> getTopicsListForUser(UUID userId) {
@@ -52,8 +54,8 @@ public class TopicService {
 
         if(title != null) topic.setTitle(title);
         if(description != null) topic.setDescription(description);
-        topicRepository.save(topic);
 
+        topicRepository.save(topic);
         return topic;
     }
 

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/topic")
+@RequestMapping("/topics")
 public class TopicController {
 
     private final TopicService topicService;
@@ -23,8 +23,9 @@ public class TopicController {
     }
 
     @GetMapping("/{topicId}")
-    public ResponseEntity<?> getTopic(@PathVariable UUID topicId) {
-        Topic topic = topicService.getTopicById(topicId);
+    public ResponseEntity<?> getTopic(@PathVariable UUID topicId, @AuthenticationPrincipal Jwt jwt) {
+        UUID userId = UUID.fromString(jwt.getSubject());
+        Topic topic = topicService.getTopicById(userId, topicId);
         return ResponseEntity.ok(topic);
     }
 
@@ -45,7 +46,7 @@ public class TopicController {
     @PatchMapping("/{topicId}")
     public ResponseEntity<?> modifyTopic(@PathVariable UUID topicId, @AuthenticationPrincipal Jwt jwt, @RequestBody TopicModificationDTO dto) {
         UUID userId = UUID.fromString(jwt.getSubject());
-        Topic topic = topicService.modifyTopic(topicId, userId, dto.getTitle(), dto.getDescription());
+        Topic topic  = topicService.modifyTopic(topicId, userId, dto.getTitle(), dto.getDescription());
         return ResponseEntity.ok(topic);
     }
 

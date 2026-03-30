@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,18 +30,21 @@ public class Topic {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "topic")
+    @OneToMany(mappedBy = "topic", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Branch> branches;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    public Topic() {}
+    public Topic() {
+        this.branches = new ArrayList<>();
+    }
 
     public Topic(String title, String description, User user) {
         this.title = title;
         this.description = description;
         this.user = user;
+        this.branches = new ArrayList<>();
     }
 
     public UUID getId() {
@@ -73,6 +77,22 @@ public class Topic {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public List<Branch> getBranches() {
+        return branches;
+    }
+
+    public void setBranches(List<Branch> branches) {
+        this.branches = branches;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     @PrePersist
