@@ -1,6 +1,7 @@
 package com.a3m.studyassistant.backend.features.resource;
 
 import com.a3m.studyassistant.backend.features.branch.Branch;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -25,11 +26,14 @@ public class Resource {
     private String type;
 
     @Column(name = "size")
-    private float size;
+    private Float size;
+
+    private String processingStatus = "PENDING";
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "branch_id")
     private Branch branch;
@@ -76,12 +80,20 @@ public class Resource {
         this.type = type;
     }
 
-    public float getSize() {
+    public Float getSize() {
         return size;
     }
 
-    public void setSize(float size) {
+    public void setSize(Float size) {
         this.size = size;
+    }
+
+    public String getProcessingStatus() {
+        return processingStatus;
+    }
+
+    public void setProcessingStatus(String processingStatus) {
+        this.processingStatus = processingStatus;
     }
 
     public LocalDateTime getCreatedAt() {

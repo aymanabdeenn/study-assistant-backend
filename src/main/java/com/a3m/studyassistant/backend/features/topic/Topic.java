@@ -79,14 +79,6 @@ public class Topic {
         this.user = user;
     }
 
-    public List<Branch> getBranches() {
-        return branches;
-    }
-
-    public void setBranches(List<Branch> branches) {
-        this.branches = branches;
-    }
-
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -98,6 +90,21 @@ public class Topic {
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+    }
+
+    public void addBranch(Branch branch) {
+        if(this.branches == null) {
+            this.branches = new ArrayList<>();
+        }
+        this.branches.add(branch);
+        branch.setTopic(this);
+    }
+
+    public void removeBranch(Branch branch) {
+        if(this.branches != null) {
+            this.branches.remove(branch);
+            branch.setTopic(null);
+        }
     }
 
 }

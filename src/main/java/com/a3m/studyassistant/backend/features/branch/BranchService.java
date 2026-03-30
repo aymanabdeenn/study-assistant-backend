@@ -30,16 +30,14 @@ public class BranchService {
 
     public List<Branch> getBranchesListForTopic(UUID userId, UUID topicId) {
         Topic topic = topicService.getTopicById(userId, topicId);
-        if(!topic.getUser().getId().equals(userId)) throw new UnauthorizedException("You do not have permission to view branches for this topic.");
         return branchRepository.findByTopicId(topicId);
     }
 
     @Transactional
     public Branch createBranch(UUID userId, UUID topicId, String title, String description) {
         Topic topic = topicService.getTopicById(userId, topicId);
-        if(!topic.getUser().getId().equals(userId)) throw new UnauthorizedException("You cannot add branches to topics you do not own.");
-
         Branch branch = new Branch(title, description, topic);
+        topic.addBranch(branch);
         return branchRepository.save(branch);
     }
 
@@ -47,6 +45,8 @@ public class BranchService {
     public void deleteBranch(UUID userId, UUID branchId) {
         Branch branch = branchRepository.findById(branchId).orElseThrow(() -> new BranchNotFoundException("Branch with id " + branchId + " couldn't be found!"));
         if(!branch.getTopic().getUser().getId().equals(userId)) throw new UnauthorizedException("You do not have permissions to delete this branch.");
+
+        branch.getTopic().removeBranch(branch);
         branchRepository.delete(branch);
     }
 

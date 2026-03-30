@@ -79,14 +79,6 @@ public class Branch {
         this.topic = topic;
     }
 
-    public List<Resource> getResources() {
-        return resources;
-    }
-
-    public void setResources(List<Resource> resources) {
-        this.resources = resources;
-    }
-
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -98,6 +90,21 @@ public class Branch {
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+    }
+
+    public void addResource(Resource resource) {
+        if(this.resources == null) {
+            this.resources = new ArrayList<>();
+        }
+        this.resources.add(resource);
+        resource.setBranch(this);
+    }
+
+    public void removeResource(Resource resource) {
+        if(this.resources != null) {
+            this.resources.remove(resource);
+            resource.setBranch(null);
+        }
     }
 
 }

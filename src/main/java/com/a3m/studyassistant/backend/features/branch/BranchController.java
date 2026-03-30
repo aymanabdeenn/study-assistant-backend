@@ -37,7 +37,7 @@ public class BranchController {
     }
 
     @PostMapping("/{topicId}")
-    public ResponseEntity<?> createBranch(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID topicId, @RequestBody BranchCreationDTO dto) {
+    public ResponseEntity<?> createBranch(@PathVariable UUID topicId, @AuthenticationPrincipal Jwt jwt, @RequestBody BranchCreationDTO dto) {
         UUID userId = UUID.fromString(jwt.getSubject());
         Branch branch = branchService.createBranch(userId, topicId, dto.getTitle(), dto.getDescription());
         return ResponseEntity.ok(branch);

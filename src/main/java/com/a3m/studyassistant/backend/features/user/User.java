@@ -105,4 +105,19 @@ public class User {
         this.role = role;
     }
 
+    public void addTopic(Topic topic) {
+        if(this.topics == null) {
+           this.topics = new ArrayList<>();
+        }
+        this.topics.add(topic);
+        topic.setUser(this);
+    }
+
+    public void removeTopic(Topic topic) {
+        if(this.topics != null) {
+            this.topics.remove(topic);
+            topic.setUser(null);
+        }
+    }
+
 }

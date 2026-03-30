@@ -1,6 +1,7 @@
 package com.a3m.studyassistant.backend.common.exceptions;
 
 import com.a3m.studyassistant.backend.features.branch.BranchNotFoundException;
+import com.a3m.studyassistant.backend.features.resource.ResourceNotFoundException;
 import com.a3m.studyassistant.backend.features.topic.TopicNotFoundException;
 import com.a3m.studyassistant.backend.features.user.UserNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -48,6 +49,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BranchNotFoundException.class)
     public ResponseEntity<Object> handleBranchNotFound(BranchNotFoundException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", HttpStatus.NOT_FOUND.value());
+        body.put("message", ex.getMessage());
+
+        return new ResponseEntity(body, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Object> handleResourceNotFound(ResourceNotFoundException ex) {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("status", HttpStatus.NOT_FOUND.value());

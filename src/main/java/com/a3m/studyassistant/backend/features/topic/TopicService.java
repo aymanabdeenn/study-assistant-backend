@@ -24,7 +24,7 @@ public class TopicService {
 
     public Topic getTopicById(UUID userId, UUID topicId) {
         Topic topic = topicRepository.findById(topicId).orElseThrow(() -> new TopicNotFoundException("Topic with id " + topicId + " couldn't be found!"));
-        if(!topic.getUser().getId().equals(userId)) throw new UnauthorizedException("You cannot retrieve a topic you do not own.");
+        if(!topic.getUser().getId().equals(userId)) throw new UnauthorizedException("You cannot retrieve topics you do not own.");
         return topic;
     }
 
@@ -36,19 +36,22 @@ public class TopicService {
     public Topic createTopic(UUID userId, String title, String description) {
         User user = userService.getUserById(userId);
         Topic topic = new Topic(title, description, user);
+        user.addTopic(topic);
         topicRepository.save(topic);
         return topic;
     }
 
     @Transactional
-    public void deleteTopic(UUID topicId, UUID userId) {
+    public void deleteTopic(UUID userId, UUID topicId) {
         Topic topic = topicRepository.findById(topicId).orElseThrow(() -> new TopicNotFoundException("Topic with id " + topicId + " couldn't be found!"));
         if(!topic.getUser().getId().equals(userId)) throw new UnauthorizedException("You do not have permission to delete this topic.");
+
+        topic.getUser().removeTopic(topic);
         topicRepository.delete(topic);
     }
 
     @Transactional
-    public Topic modifyTopic(UUID topicId, UUID userId, String title, String description) {
+    public Topic modifyTopic(UUID userId, UUID topicId, String title, String description) {
         Topic topic = topicRepository.findById(topicId).orElseThrow(() -> new TopicNotFoundException("Topic with id " + topicId + " couldn't be found!"));
         if(!topic.getUser().getId().equals(userId)) throw new UnauthorizedException("You do not have permission to modify this topic.");
 

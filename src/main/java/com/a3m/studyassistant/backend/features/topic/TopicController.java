@@ -37,7 +37,7 @@ public class TopicController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createTopic(@AuthenticationPrincipal Jwt jwt, @RequestBody TopicCreationDTO dto) {
+    public ResponseEntity<?> createTopic(@RequestBody TopicCreationDTO dto, @AuthenticationPrincipal Jwt jwt) {
         UUID userId = UUID.fromString(jwt.getSubject());
         Topic topic = topicService.createTopic(userId, dto.getTitle(), dto.getDescription());
         return ResponseEntity.ok(topic);
@@ -46,14 +46,14 @@ public class TopicController {
     @PatchMapping("/{topicId}")
     public ResponseEntity<?> modifyTopic(@PathVariable UUID topicId, @AuthenticationPrincipal Jwt jwt, @RequestBody TopicModificationDTO dto) {
         UUID userId = UUID.fromString(jwt.getSubject());
-        Topic topic  = topicService.modifyTopic(topicId, userId, dto.getTitle(), dto.getDescription());
+        Topic topic  = topicService.modifyTopic(userId, topicId, dto.getTitle(), dto.getDescription());
         return ResponseEntity.ok(topic);
     }
 
     @DeleteMapping("/{topicId}")
     public ResponseEntity<?> deleteTopic(@PathVariable UUID topicId, @AuthenticationPrincipal Jwt jwt) {
         UUID userId = UUID.fromString(jwt.getSubject());
-        topicService.deleteTopic(topicId, userId);
+        topicService.deleteTopic(userId, topicId);
         return ResponseEntity.ok("Topic with id " + topicId + " has been deleted successfully!");
     }
 
