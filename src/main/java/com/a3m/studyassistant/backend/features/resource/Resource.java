@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -38,7 +40,12 @@ public class Resource {
     @JoinColumn(name = "branch_id")
     private Branch branch;
 
-    public Resource() {}
+    @OneToMany(mappedBy = "resource", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ResourceChunk> resourceChunks;
+
+    public Resource() {
+        this.resourceChunks = new ArrayList<>();
+    }
 
     public Resource(String title, String url, String type, float size, Branch branch) {
         this.title = title;
@@ -46,6 +53,7 @@ public class Resource {
         this.type = type;
         this.size = size;
         this.branch = branch;
+        this.resourceChunks = new ArrayList<>();
     }
 
     public UUID getId() {
@@ -115,6 +123,21 @@ public class Resource {
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+    }
+
+    public void addChunk(ResourceChunk chunk) {
+        if(this.resourceChunks == null) {
+            this.resourceChunks = new ArrayList<>();
+        }
+        this.resourceChunks.add(chunk);
+        chunk.setResource(this);
+    }
+
+    public void removeChunk(ResourceChunk chunk) {
+        if(this.resourceChunks != null) {
+            this.resourceChunks.remove(chunk);
+            chunk.setResource(null);
+        }
     }
 
 }
