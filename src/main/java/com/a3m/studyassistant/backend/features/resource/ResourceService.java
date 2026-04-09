@@ -3,10 +3,16 @@ package com.a3m.studyassistant.backend.features.resource;
 import com.a3m.studyassistant.backend.common.exceptions.UnauthorizedException;
 import com.a3m.studyassistant.backend.features.branch.Branch;
 import com.a3m.studyassistant.backend.features.branch.BranchService;
+import com.a3m.studyassistant.backend.features.integration.google.embedding.GoogleEmbeddingService;
+import dev.langchain4j.data.document.Document;
+import dev.langchain4j.data.document.parser.apache.tika.ApacheTikaDocumentParser;
+import dev.langchain4j.data.document.splitter.DocumentSplitters;
+import dev.langchain4j.data.segment.TextSegment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,12 +20,16 @@ import java.util.UUID;
 public class ResourceService {
 
     private final BranchService branchService;
+    private final GoogleEmbeddingService googleEmbeddingService;
+    private final ResourceChunkService resourceChunkService;
     private final ResourceRepository resourceRepository;
 
     @Autowired
-    public ResourceService(BranchService branchService, ResourceRepository resourceRepository) {
+    public ResourceService(BranchService branchService, GoogleEmbeddingService googleEmbeddingService, ResourceChunkService resourceChunkService, ResourceRepository resourceRepository) {
         this.branchService = branchService;
+        this.googleEmbeddingService = googleEmbeddingService;
         this.resourceRepository = resourceRepository;
+        this.resourceChunkService = resourceChunkService;
     }
 
     public Resource getResourceById(UUID userId, UUID resourceId) {
@@ -61,6 +71,22 @@ public class ResourceService {
         if(size != null) resource.setSize(size);
 
         return resourceRepository.save(resource);
+    }
+
+    public void processResource(InputStream fileStream, Resource resource) {
+        ApacheTikaDocumentParser parser = new ApacheTikaDocumentParser();
+        Document document = parser.parse(fileStream);
+
+        var splitter = DocumentSplitters.recursive(1000, 150);
+        List<TextSegment> segments = splitter.split(document);
+
+        for(int i = 0 ; i < segments.size() ; i++) {
+           String text = segments.get(i).text();
+           float[] vector = googleEmbeddingService.getEmbedding(text);
+           resourceChunkService.saveChunk(text, vector, i, resource);
+
+           try { Thread.sleep(2000); } catch(InterruptedException ex) { Thread.currentThread().interrupt(); }
+        }
     }
 
 }

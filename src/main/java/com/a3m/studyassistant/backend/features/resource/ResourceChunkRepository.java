@@ -12,15 +12,19 @@ import java.util.UUID;
 public interface ResourceChunkRepository extends JpaRepository<ResourceChunk, UUID> {
 
    @Query(
-           value = "SELECT * FROM resource_chunks rc " +
+           value = "SELECT rc.content FROM resource_chunks rc " +
                    "WHERE rc.resource_id = :resourceId " +
                    "ORDER BY rc.embedding <=> cast(:queryEmbedding as vector) " +
                    "LIMIT :limit",
            nativeQuery = true)
-    List<ResourceChunk> findSimilarChunks(
+   List<String> findSimilarChunks(
             @Param("resourceId") UUID resourceId,
-            @Param("queryEmbedding") float[] queryEmbedding,
+            @Param("queryEmbedding") String queryEmbedding,
             @Param("limit") int limit
-    );
+   );
+
+   @Query(value = "SELECT content FROM resource_chunks WHERE resource_id = :resourceId", nativeQuery = true)
+   List<String> findAllContentByResourceId(@Param("resourceId") UUID resourceId);
 
 }
+
