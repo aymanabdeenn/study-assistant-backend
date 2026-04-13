@@ -23,10 +23,9 @@ public class QuizService{
         this.objectMapper = objectMapper;
     }
 
-    public QuizResponse generateQuiz(List<String> chunksContent, String topic) {
-        String contextText = String.join("\n\n", chunksContent);
-        String userPrompt = "Topic: " + topic + "\nContext:\n" + contextText;
-        String systemPrompt = "You are a teacher Create 5 multiple choice questions.";
+    public QuizResponse generateQuiz(String chunksContent, String topic) {
+        String userPrompt = "Topic: " + topic + "\nContext:\n" + chunksContent;
+        String systemPrompt = "You are a teacher Create 10 multiple choice questions.";
         Map<String, Object> quizSchema = Map.of(
                 "type", "OBJECT",
                 "properties", Map.of(
@@ -52,7 +51,7 @@ public class QuizService{
         );
 
         // 2. Get the RAW JSON string from Google
-        ChatResponse rawResponse = chatService.generate(userPrompt, systemPrompt, contextText, quizSchema);
+        ChatResponse rawResponse = chatService.generate(userPrompt, systemPrompt, chunksContent, quizSchema);
 
         if (rawResponse != null && rawResponse.usageMetadata() != null) {
             System.out.println("Tokens used: " + rawResponse.usageMetadata().totalTokenCount());
