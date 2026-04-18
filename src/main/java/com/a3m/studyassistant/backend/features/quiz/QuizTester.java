@@ -2,6 +2,8 @@ package com.a3m.studyassistant.backend.features.quiz;
 
 import com.a3m.studyassistant.backend.features.integration.google.chat.dto.QuizResponse;
 import com.a3m.studyassistant.backend.features.rag.RagService;
+import com.a3m.studyassistant.backend.features.resource.Resource;
+import com.a3m.studyassistant.backend.features.resource.ResourceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -9,25 +11,29 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.UUID;
 
-//@Component
+@Component
 public class QuizTester implements CommandLineRunner {
 
     private final QuizService quizService;
     private final RagService ragService;
+    private final ResourceService resourceService;
 
     @Autowired
-    public QuizTester(QuizService quizService, RagService ragService) {
+    public QuizTester(QuizService quizService, RagService ragService, ResourceService resourceService) {
         this.quizService = quizService;
         this.ragService = ragService;
+        this.resourceService = resourceService;
     }
 
     @Override
     public void run(String... args) throws Exception {
         UUID resourceId = UUID.fromString("ff3fdee0-1929-4339-a60f-fa8614610ae0");
+        UUID userId = UUID.fromString("54831360-e278-4b21-bd2f-3764aa232a4c");
+        Resource resource = resourceService.getResourceById(userId, resourceId);
 
-        String chunksContent =  ragService.getRelevantContext(resourceId, 5);
+        String atomicSummary =  ragService.getFullContext(resourceId, 10);
 
-        QuizResponse quiz = quizService.generateQuiz(chunksContent, "python Introduction");
+        QuizResponse quiz = quizService.generateQuiz(atomicSummary, resource.getBranch().getTopic().getTitle());
         displayQuiz(quiz);
     }
 

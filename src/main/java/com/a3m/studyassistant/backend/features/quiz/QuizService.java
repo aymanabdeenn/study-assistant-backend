@@ -25,7 +25,14 @@ public class QuizService{
 
     public QuizResponse generateQuiz(String chunksContent, String topic) {
         String userPrompt = "Topic: " + topic + "\nContext:\n" + chunksContent;
-        String systemPrompt = "You are a teacher Create 10 multiple choice questions.";
+
+        String systemPrompt = """
+        You are a teacher. Generate exactly 10 multiple-choice questions.
+        Each question must have 4 options.
+        Return ONLY valid JSON matching the provided schema.
+        Follow the provided material ONLY.
+        """;
+
         Map<String, Object> quizSchema = Map.of(
                 "type", "OBJECT",
                 "properties", Map.of(
@@ -61,8 +68,6 @@ public class QuizService{
 
         // 3. Extract the JSON string from the "Speech Bubble"
         String jsonString = rawResponse.candidates().get(0).content().parts().get(0).text();
-
-        System.out.println("QuizResponse json string: " + jsonString);
 
         // 4. MAP it to your clean Domain Object
         try {

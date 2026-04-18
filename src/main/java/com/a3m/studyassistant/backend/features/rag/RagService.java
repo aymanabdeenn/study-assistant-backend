@@ -17,12 +17,14 @@ public class RagService {
     private final ResourceChunkRepository resourceChunkRepository;
     private final GoogleEmbeddingService googleEmbeddingService;
     private final ResourceService resourceService;
+    private final MapReduceService mapReduceService;
 
     @Autowired
-    public RagService(ResourceChunkRepository resourceChunkRepository, GoogleEmbeddingService googleEmbeddingService, ResourceService resourceService) {
+    public RagService(ResourceChunkRepository resourceChunkRepository, GoogleEmbeddingService googleEmbeddingService, ResourceService resourceService, MapReduceService mapReduceService) {
         this.resourceChunkRepository = resourceChunkRepository;
         this.googleEmbeddingService = googleEmbeddingService;
         this.resourceService = resourceService;
+        this.mapReduceService = mapReduceService;
     }
 
     public String getRelevantContext(UUID resourceId, int limit) {
@@ -41,6 +43,14 @@ public class RagService {
         );
 
         return String.join("\n\n---\n\n", chunksContent);
+    }
+
+    public String getFullContext(UUID resourceId, int limit) {
+        UUID userId = UUID.fromString("54831360-e278-4b21-bd2f-3764aa232a4c");
+        Resource resource = resourceService.getResourceById(userId, resourceId);
+
+        List<String> chunksContent = resourceChunkRepository.findAllContentByResourceId(resourceId);
+        return mapReduceService.synthesize(chunksContent, resource.getBranch().getTopic().getTitle());
     }
 
     private String formatVectorForPostgres(float[] vector) {

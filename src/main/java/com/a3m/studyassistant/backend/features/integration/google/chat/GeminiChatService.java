@@ -63,8 +63,6 @@ public class GeminiChatService {
                 .retrieve()
                 .body(String.class);
 
-        System.out.println("ChatResponse json string: " + jsonString);
-
         try {
             return objectMapper.readValue(jsonString, ChatResponse.class);
         } catch (JsonProcessingException e) {
