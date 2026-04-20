@@ -1,0 +1,15 @@
+{
+  "type": "OBJECT",
+  "properties": {
+    "facts": {
+      "type": "ARRAY",
+      "items": {
+        "type": "STRING"
+      },
+      "description": "List of technical facts"
+    }
+  },
+  "required": [
+    "facts"
+  ]
+}

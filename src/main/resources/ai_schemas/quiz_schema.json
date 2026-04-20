@@ -1,0 +1,40 @@
+{
+  "type": "OBJECT",
+  "properties": {
+    "quizTitle": {
+      "type": "STRING"
+    },
+    "questions": {
+      "type": "ARRAY",
+      "items": {
+        "type": "OBJECT",
+        "properties": {
+          "questionText": {
+            "type": "STRING"
+          },
+          "options": {
+            "type": "ARRAY",
+            "items": {
+              "type": "STRING"
+            }
+          },
+          "correctOptionIndex": {
+            "type": "INTEGER"
+          },
+          "explanation": {
+            "type": "STRING"
+          }
+        },
+        "required": [
+          "questionText",
+          "options",
+          "correctOptionIndex"
+        ]
+      }
+    }
+  },
+  "required": [
+    "quizTitle",
+    "questions"
+  ]
+}

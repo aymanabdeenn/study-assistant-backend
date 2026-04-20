@@ -1,12 +1,16 @@
 package com.a3m.studyassistant.backend.features.rag;
 
+import com.a3m.studyassistant.backend.features.ai.orchestration.PromptProviderService;
 import com.a3m.studyassistant.backend.features.integration.google.chat.GeminiChatService;
 import com.a3m.studyassistant.backend.features.integration.google.chat.dto.AtomicFactResponse;
 import com.a3m.studyassistant.backend.features.integration.google.chat.dto.ChatResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -14,12 +18,19 @@ import java.util.Map;
 @Service
 public class MapReduceService {
     private final GeminiChatService chatService;
+    private final PromptProviderService promptProviderService;
     private final ObjectMapper objectMapper;
 
+    private final Map<String, Object> atomicFactsSchema;
+
     @Autowired
-    public MapReduceService(GeminiChatService chatService, ObjectMapper objectMapper) {
+    public MapReduceService(GeminiChatService chatService, PromptProviderService promptProviderService, ObjectMapper objectMapper) throws IOException {
         this.chatService = chatService;
+        this.promptProviderService = promptProviderService;
         this.objectMapper = objectMapper;
+
+        InputStream is = getClass().getResourceAsStream("/ai_schemas/atomic_facts_schema.json");
+        this.atomicFactsSchema = objectMapper.readValue(is, new TypeReference<Map<String, Object>>() {});
     }
 
     public List<String> batchChunks(List<String> chunksContent, int batchSize) {
@@ -39,20 +50,7 @@ public class MapReduceService {
     }
 
     public List<String> map(List<String> batches, String topic) {
-        String systemPrompt = "Extract all core academic concepts regarding the specific topic. " +
-                "Each fact must be a complete, standalone sentence. Stick to the exact wording of text you have been sent. Return strictly JSON.";
-
-        Map<String, Object> atomicFactsSchema = Map.of(
-                "type", "OBJECT",
-                "properties", Map.of(
-                        "facts", Map.of(
-                                "type", "ARRAY",
-                                "items", Map.of("type", "STRING"),
-                                "description", "List of technical facts"
-                        )
-                ),
-                "required", List.of("facts")
-        );
+        String systemPrompt = promptProviderService.getPrompt("map_facts_system");
 
         List<String> allBullets = new ArrayList<>();
 
@@ -80,8 +78,7 @@ public class MapReduceService {
 
         String joinedFacts = String.join("\n* ", allBullets);
 
-        String systemPrompt = "You are an expert academic assistant. Use the provided list of atomic facts " +
-                "to create a comprehensive, well-structured summary. Ensure 100% coverage of the facts.";
+        String systemPrompt = promptProviderService.getPrompt("reduce_facts_system");
 
         String userPrompt = "Topic: " + topic + "\nFacts:\n" + joinedFacts;
 

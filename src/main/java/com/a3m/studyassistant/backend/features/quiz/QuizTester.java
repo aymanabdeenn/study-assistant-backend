@@ -33,7 +33,7 @@ public class QuizTester implements CommandLineRunner {
 
         String atomicSummary =  ragService.getFullContext(resourceId, 10);
 
-        QuizResponse quiz = quizService.generateQuiz(atomicSummary, resource.getBranch().getTopic().getTitle());
+        QuizResponse quiz = quizService.generateQuiz(atomicSummary, (float)0.7, resource.getBranch().getTopic().getTitle());
         displayQuiz(quiz);
     }
 

@@ -1,61 +1,43 @@
 package com.a3m.studyassistant.backend.features.quiz;
 
+import com.a3m.studyassistant.backend.features.ai.orchestration.PromptProviderService;
 import com.a3m.studyassistant.backend.features.integration.google.chat.GeminiChatService;
 import com.a3m.studyassistant.backend.features.integration.google.chat.dto.ChatResponse;
 import com.a3m.studyassistant.backend.features.integration.google.chat.dto.QuizResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 
 @Service
 public class QuizService{
 
     private final GeminiChatService chatService;
+    private final PromptProviderService promptProviderService;
     private final ObjectMapper objectMapper;
 
+    private final Map<String, Object> quizSchema;
+
     @Autowired
-    public QuizService(GeminiChatService geminiChatService, ObjectMapper objectMapper) {
+    public QuizService(GeminiChatService geminiChatService, PromptProviderService promptProviderService, ObjectMapper objectMapper) throws IOException {
         this.chatService = geminiChatService;
+        this.promptProviderService = promptProviderService;
         this.objectMapper = objectMapper;
+
+        InputStream is = getClass().getResourceAsStream("/ai_schemas/quiz_schema.json");
+        this.quizSchema = objectMapper.readValue(is, new TypeReference<Map<String, Object>>() {});
     }
 
-    public QuizResponse generateQuiz(String chunksContent, String topic) {
+    public QuizResponse generateQuiz(String chunksContent, float coverage, String topic) {
         String userPrompt = "Topic: " + topic + "\nContext:\n" + chunksContent;
 
-        String systemPrompt = """
-        You are a teacher. Generate exactly 10 multiple-choice questions.
-        Each question must have 4 options.
-        Return ONLY valid JSON matching the provided schema.
-        Follow the provided material ONLY.
-        """;
-
-        Map<String, Object> quizSchema = Map.of(
-                "type", "OBJECT",
-                "properties", Map.of(
-                        "quizTitle", Map.of("type", "STRING"),
-                        "questions", Map.of(
-                                "type", "ARRAY",
-                                "items", Map.of(
-                                        "type", "OBJECT",
-                                        "properties", Map.of(
-                                                "questionText", Map.of("type", "STRING"),
-                                                "options", Map.of(
-                                                        "type", "ARRAY",
-                                                        "items", Map.of("type", "STRING")
-                                                ),
-                                                "correctOptionIndex", Map.of("type", "INTEGER"),
-                                                "explanation", Map.of("type", "STRING") // Why it's correct
-                                        ),
-                                        "required", List.of("questionText", "options", "correctOptionIndex")
-                                )
-                        )
-                ),
-                "required", List.of("quizTitle", "questions")
-        );
+        String systemPrompt = promptProviderService.getPrompt("quiz_system");
+        String specializedInstruction = systemPrompt.replace("{{coverage}}", String.valueOf(coverage * 100));
 
         // 2. Get the RAW JSON string from Google
         ChatResponse rawResponse = chatService.generate(userPrompt, systemPrompt, chunksContent, quizSchema);
