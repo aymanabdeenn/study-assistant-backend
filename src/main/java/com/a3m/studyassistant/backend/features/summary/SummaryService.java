@@ -1,46 +1,45 @@
-package com.a3m.studyassistant.backend.features.quiz;
+package com.a3m.studyassistant.backend.features.summary;
 
 import com.a3m.studyassistant.backend.features.ai.orchestration.PromptProviderService;
 import com.a3m.studyassistant.backend.features.integration.google.chat.GeminiChatService;
 import com.a3m.studyassistant.backend.features.integration.google.chat.dto.ChatResponse;
-import com.a3m.studyassistant.backend.features.integration.google.chat.dto.QuizResponse;
+import com.a3m.studyassistant.backend.features.integration.google.chat.dto.SummaryResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
 @Service
-public class QuizService{
+public class SummaryService {
 
     private final GeminiChatService chatService;
     private final PromptProviderService promptProviderService;
-    private final ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
 
-    private final Map<String, Object> quizSchema;
+    private final Map<String, Object> summarySchema;
 
     @Autowired
-    public QuizService(GeminiChatService geminiChatService, PromptProviderService promptProviderService, ObjectMapper objectMapper) throws IOException {
-        this.chatService = geminiChatService;
+    public SummaryService(GeminiChatService chatService, PromptProviderService promptProviderService, ObjectMapper objectMapper) {
+        this.chatService = chatService;
         this.promptProviderService = promptProviderService;
         this.objectMapper = objectMapper;
 
-        InputStream is = getClass().getResourceAsStream("/ai_schemas/quiz_schema.json");
-        this.quizSchema = objectMapper.readValue(is, new TypeReference<Map<String, Object>>() {});
+        InputStream is = getClass().getResourceAsStream("/ai_schemas/summary_schema.json");
+        this.summarySchema = objectMapper.readValue(is, new TypeReference<Map<String, Object>>() {});
     }
 
-    public QuizResponse generateQuiz(String chunksContent, float coverage, String topic) {
+    public SummaryResponse generateSummary(String chunksContent, float coverage, String topic) {
         String userPrompt = "Topic: " + topic + "\nContext:\n" + chunksContent;
 
-        String systemPrompt = promptProviderService.getPrompt("quiz_system");
+        String systemPrompt = promptProviderService.getPrompt("summary_system");
         String specializedInstruction = systemPrompt.replace("{{coverage}}", String.valueOf(coverage * 100));
 
         // 2. Get the RAW JSON string from Google
-        ChatResponse rawResponse = chatService.generate(userPrompt, specializedInstruction, chunksContent, quizSchema);
+        ChatResponse rawResponse = chatService.generate(userPrompt, specializedInstruction, chunksContent, summarySchema);
 
         if (rawResponse != null && rawResponse.usageMetadata() != null) {
             System.out.println("Tokens used: " + rawResponse.usageMetadata().totalTokenCount());
@@ -52,11 +51,7 @@ public class QuizService{
         String jsonString = rawResponse.candidates().get(0).content().parts().get(0).text();
 
         // 4. MAP it to your clean Domain Object
-        try {
-            return objectMapper.readValue(jsonString, QuizResponse.class);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("AI returned invalid JSON for Quiz", e);
-        }
+        return objectMapper.readValue(jsonString, SummaryResponse.class);
     }
 
 }

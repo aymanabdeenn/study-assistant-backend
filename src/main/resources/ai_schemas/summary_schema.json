@@ -1,0 +1,25 @@
+{
+  "type": "OBJECT",
+  "properties": {
+    "title": {
+      "type": "STRING",
+      "description": "A concise, academic title for the summary"
+    },
+    "content": {
+      "type": "STRING",
+      "description": "The cohesive, high-density academic summary text"
+    },
+    "keyTakeaways": {
+      "type": "ARRAY",
+      "items": {
+        "type": "STRING"
+      },
+      "description": "3-5 essential bullet points summarizing the most critical facts"
+    }
+  },
+  "required": [
+    "title",
+    "content",
+    "keyTakeaways"
+  ]
+}
