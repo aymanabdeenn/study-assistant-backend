@@ -19,6 +19,8 @@ public class PromptProviderService {
         prompts.put("quiz_system", loadPrompt("quiz_system_prompt.txt"));
         prompts.put("map_facts_system", loadPrompt("map_facts_system_prompt.txt"));
         prompts.put("reduce_facts_system", loadPrompt("reduce_facts_system_prompt.txt"));
+        prompts.put("summary_system", loadPrompt("summary_system_prompt.txt"));
+        prompts.put("parse_image_system", loadPrompt("parse_image_system_prompt.txt"));
     }
 
     public String loadPrompt(String fileName) throws IOException {
@@ -28,7 +30,10 @@ public class PromptProviderService {
     }
 
     public String getPrompt(String key) {
-        return prompts.containsKey(key) ? prompts.get(key) : "You are passing the wrong prompt name";
+        if (!prompts.containsKey(key)) {
+            throw new IllegalArgumentException("Requested prompt key [" + key + "] does not exist!");
+        }
+        return prompts.get(key);
     }
 
 }

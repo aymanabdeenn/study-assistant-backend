@@ -1,13 +1,18 @@
 package com.a3m.studyassistant.backend.features.resource;
 
 import com.a3m.studyassistant.backend.common.exceptions.UnauthorizedException;
+import com.a3m.studyassistant.backend.features.ai.orchestration.PromptProviderService;
 import com.a3m.studyassistant.backend.features.branch.Branch;
 import com.a3m.studyassistant.backend.features.branch.BranchService;
+import com.a3m.studyassistant.backend.features.integration.google.chat.GeminiChatService;
 import com.a3m.studyassistant.backend.features.integration.google.embedding.GoogleEmbeddingService;
+import com.a3m.studyassistant.backend.features.integration.google.embedding.ImageTrackingExtractor;
+import com.a3m.studyassistant.backend.features.integration.tika.CustomTikaParser;
 import dev.langchain4j.data.document.Document;
-import dev.langchain4j.data.document.parser.apache.tika.ApacheTikaDocumentParser;
 import dev.langchain4j.data.document.splitter.DocumentSplitters;
 import dev.langchain4j.data.segment.TextSegment;
+import org.apache.tika.extractor.EmbeddedDocumentExtractor;
+import org.apache.tika.parser.ParseContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,13 +28,19 @@ public class ResourceService {
     private final GoogleEmbeddingService googleEmbeddingService;
     private final ResourceChunkService resourceChunkService;
     private final ResourceRepository resourceRepository;
+    private final GeminiChatService chatService;
+    private final PromptProviderService promptProviderService;
+    private final CustomTikaParser customTikaParser;
 
     @Autowired
-    public ResourceService(BranchService branchService, GoogleEmbeddingService googleEmbeddingService, ResourceChunkService resourceChunkService, ResourceRepository resourceRepository) {
+    public ResourceService(BranchService branchService, GoogleEmbeddingService googleEmbeddingService, ResourceChunkService resourceChunkService, ResourceRepository resourceRepository, GeminiChatService chatService, PromptProviderService promptProviderService, CustomTikaParser customTikaParser) {
         this.branchService = branchService;
         this.googleEmbeddingService = googleEmbeddingService;
         this.resourceRepository = resourceRepository;
         this.resourceChunkService = resourceChunkService;
+        this.chatService = chatService;
+        this.promptProviderService = promptProviderService;
+        this.customTikaParser = customTikaParser;
     }
 
     public Resource getResourceById(UUID userId, UUID resourceId) {
@@ -74,8 +85,10 @@ public class ResourceService {
     }
 
     public void processResource(InputStream fileStream, Resource resource) {
-        ApacheTikaDocumentParser parser = new ApacheTikaDocumentParser();
-        Document document = parser.parse(fileStream);
+        ParseContext context = new ParseContext();
+        context.set(EmbeddedDocumentExtractor.class, new ImageTrackingExtractor(chatService, promptProviderService));
+
+        Document document = customTikaParser.parse(fileStream, context);
 
         var splitter = DocumentSplitters.recursive(1000, 150);
         List<TextSegment> segments = splitter.split(document);
@@ -87,6 +100,8 @@ public class ResourceService {
 
            try { Thread.sleep(2000); } catch(InterruptedException ex) { Thread.currentThread().interrupt(); }
         }
+
+        try { fileStream.close(); } catch(Exception ex) { System.out.println("The input stream couldn't be closed"); }
     }
 
 }

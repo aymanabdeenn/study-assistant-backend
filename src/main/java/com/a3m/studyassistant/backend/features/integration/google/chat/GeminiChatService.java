@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -37,15 +38,15 @@ public class GeminiChatService {
         GeminiChatRequest.Content userContent = new GeminiChatRequest.Content(
                 "user",
                 List.of(
-                        new GeminiChatRequest.Part(userPrompt),
-                        new GeminiChatRequest.Part(contextText)
+                        GeminiChatRequest.Part.ofText(userPrompt),
+                        GeminiChatRequest.Part.ofText(contextText)
                 )
         );
 
         // 2. Create the System Instruction Content
         GeminiChatRequest.Content systemInstruction = new GeminiChatRequest.Content(
                 "system",
-                List.of(new GeminiChatRequest.Part(systemPrompt))
+                List.of(GeminiChatRequest.Part.ofText(systemPrompt))
         );
 
         // 3. Assemble the Request
@@ -69,6 +70,55 @@ public class GeminiChatService {
             // Log the raw JSON so you can see WHY it failed
             System.err.println("Failed to map Gemini response. Raw JSON: " + jsonString);
             throw new RuntimeException("AI response mapping failed", e);
+        }
+    }
+
+    public String describeImage(byte[] imageBytes, String mimeType, String systemPrompt) {
+        String base64Image = Base64.getEncoder().encodeToString(imageBytes);
+
+        // 1. Create content with both instructions and the image
+        GeminiChatRequest.Content userContent = new GeminiChatRequest.Content(
+                "user",
+                List.of(
+                        GeminiChatRequest.Part.ofText("Describe this technical image for a study guide."),
+                        GeminiChatRequest.Part.ofImage(mimeType, base64Image)
+                )
+        );
+
+        GeminiChatRequest.Content systemInstruction = new GeminiChatRequest.Content(
+                "system",
+                List.of(GeminiChatRequest.Part.ofText(systemPrompt))
+        );
+
+        // 2. Build request (usually plain text for descriptions, so mimeType is text/plain)
+        GeminiChatRequest request = new GeminiChatRequest(
+                List.of(userContent),
+                systemInstruction,
+                new GeminiChatRequest.GenerationConfig("text/plain", 0.4, null)
+        );
+
+        // 3. Fire request (same restClient logic as your other method)
+        String jsonString = restClient.post()
+                .uri(uri -> uri.queryParam("key", apiKey).build())
+                .body(request)
+                .retrieve()
+                .body(String.class);
+
+        return extractTextFromResponse(jsonString);
+    }
+
+    public String extractTextFromResponse(String jsonString) {
+        try {
+            ChatResponse response = objectMapper.readValue(jsonString, ChatResponse.class);
+
+            // Safety check: Ensure the response actually has content
+            if (response.candidates() != null && !response.candidates().isEmpty()) {
+                return response.candidates().get(0).content().parts().get(0).text();
+            }
+
+            return "No description generated for this image.";
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("AI response mapping for image interpretation failed", e);
         }
     }
 
