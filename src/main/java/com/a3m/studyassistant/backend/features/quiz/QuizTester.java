@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.UUID;
 
-@Component
+//@Component
 public class QuizTester implements CommandLineRunner {
 
     private final QuizService quizService;
