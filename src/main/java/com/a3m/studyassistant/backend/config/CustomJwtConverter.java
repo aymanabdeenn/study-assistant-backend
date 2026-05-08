@@ -20,18 +20,17 @@ public class CustomJwtConverter implements Converter<Jwt, AbstractAuthentication
         this.userRepository = userRepository;
     }
 
-    @Override
+   @Override
     public AbstractAuthenticationToken convert(Jwt jwt) {
         UUID userId = UUID.fromString(jwt.getSubject());
 
-        // 1. Fetch Role from Database instead of JWT Claims
         Collection<GrantedAuthority> authorities = userRepository.findById(userId)
-                .map(user -> Collections.<GrantedAuthority>singletonList(
-                        new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
-                ))
-                .orElse(Collections.emptyList()); // No roles for new/unsynced users
+             .map(user -> Collections.<GrantedAuthority>singletonList(
+                    new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
+             ))
+            // ✅ Change: Provide a default role so they aren't blocked by 403
+            .orElse(Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
 
-        // 2. Return the token with the DB-sourced authorities
         return new JwtAuthenticationToken(jwt, authorities);
-    }
+}
 }
