@@ -22,6 +22,7 @@ public class PromptProviderService {
         prompts.put("summary_system", loadPrompt("summary_system_prompt.txt"));
         prompts.put("parse_image_system", loadPrompt("parse_image_system_prompt.txt"));
         prompts.put("conversation_system", loadPrompt("conversation_system_prompt.txt"));
+        prompts.put("flashcard_system", loadPrompt("flashcard_system_prompt.txt"));
     }
 
     public String loadPrompt(String fileName) throws IOException {

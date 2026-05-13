@@ -1,0 +1,35 @@
+{
+  "type": "object",
+  "properties": {
+    "topic": {
+      "type": "string",
+      "description": "A brief title for the flashcard set"
+    },
+    "cards": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "front": {
+            "type": "string",
+            "description": "The question or prompt for active recall"
+          },
+          "back": {
+            "type": "string",
+            "description": "The concise answer or explanation"
+          },
+          "hint": {
+            "type": "string",
+            "description": "A small clue to help the student before flipping"
+          },
+          "category": {
+            "type": "string",
+            "description": "The type of knowledge, e.g., Terminology, Concept, Formula"
+          }
+        },
+        "required": ["front", "back", "category"]
+      }
+    }
+  },
+  "required": ["topic", "cards"]
+}

@@ -4,7 +4,6 @@ import com.a3m.studyassistant.backend.features.ai.orchestration.PromptProviderSe
 import com.a3m.studyassistant.backend.features.integration.google.chat.GeminiChatService;
 import com.a3m.studyassistant.backend.features.integration.google.chat.dto.ChatResponse;
 import com.a3m.studyassistant.backend.features.integration.google.chat.dto.SummaryResponse;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tools.jackson.core.type.TypeReference;
