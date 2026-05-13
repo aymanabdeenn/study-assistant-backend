@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
-@Component
+//@Component
 public class FlashcardTester implements CommandLineRunner {
 
     private final FlashcardService flashcardService;
