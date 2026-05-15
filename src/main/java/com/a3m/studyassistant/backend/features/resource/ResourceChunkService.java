@@ -16,14 +16,15 @@ public class ResourceChunkService {
         this.resourceChunkRepository = resourceChunkRepository;
     }
 
-    public List<String> getChunksList(UUID resourceId, String queryEmbedding, int limit) {
+    public List<ResourceChunk> getChunksList(UUID resourceId, String queryEmbedding, int limit) {
         return resourceChunkRepository.findSimilarChunks(resourceId, queryEmbedding, limit);
     }
 
     @Transactional
-    public void saveChunk(String text, float[] vector, int idx, Resource resource) {
+    public void saveChunk(String text, int pageNumber, float[] vector, int idx, Resource resource) {
         ResourceChunk chunk = new ResourceChunk();
         chunk.setContent(text);
+        chunk.setPageNumber(pageNumber);
         chunk.setEmbedding(vector);
         chunk.setChunkIndex((long) idx);
         chunk.setResource(resource);

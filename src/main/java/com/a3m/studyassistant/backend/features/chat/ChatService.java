@@ -28,7 +28,7 @@ public class ChatService {
     }
 
     public ConversationAgentResponse askAgent(UUID resourceId, String message) {
-        String relevantChunksContent = ragService.getRelevantContext(resourceId, 10);
+        String relevantChunksContent = ragService.getRelevantContext(resourceId, message, 10);
         String userPrompt = "### SOURCE DATA\n" +
                 "The following excerpts are from the student's uploaded study materials:\n" +
                 "---------------------\n" +

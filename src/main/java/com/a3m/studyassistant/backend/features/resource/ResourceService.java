@@ -88,20 +88,42 @@ public class ResourceService {
         ParseContext context = new ParseContext();
         context.set(EmbeddedDocumentExtractor.class, new ImageTrackingExtractor(chatService, promptProviderService));
 
-        Document document = customTikaParser.parse(fileStream, context);
+        // 1. Receive the List of Documents (one per page)
+        List<Document> documents = customTikaParser.parse(fileStream, context);
 
+        // 2. Split ALL documents at once
+        // LangChain4j will handle the list and return segments for all pages
         var splitter = DocumentSplitters.recursive(1000, 150);
-        List<TextSegment> segments = splitter.split(document);
+        List<TextSegment> segments = splitter.splitAll(documents);
 
-        for(int i = 0 ; i < segments.size() ; i++) {
-           String text = segments.get(i).text();
-           float[] vector = googleEmbeddingService.getEmbedding(text);
-           resourceChunkService.saveChunk(text, vector, i, resource);
+        // 3. Process the segments
+        for (int i = 0; i < segments.size(); i++) {
+            TextSegment segment = segments.get(i);
+            String text = segment.text();
 
-           try { Thread.sleep(2000); } catch(InterruptedException ex) { Thread.currentThread().interrupt(); }
+            // 🛠️ Pro-Tip: Retrieve the page number from the segment metadata!
+            // LangChain4j copies metadata from Document to TextSegment automatically.
+            String pageNumberStr = segment.metadata().getString("page_number");
+            int pageNumber = (pageNumberStr != null) ? Integer.parseInt(pageNumberStr) : 1;
+
+            float[] vector = googleEmbeddingService.getEmbedding(text);
+
+            // Pass the pageNumber to your saveChunk method if your DB supports it
+            resourceChunkService.saveChunk(text, pageNumber,vector, i, resource);
+
+            // Rate limiting for the Embedding API
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
+            }
         }
 
-        try { fileStream.close(); } catch(Exception ex) { System.out.println("The input stream couldn't be closed"); }
+        try {
+            fileStream.close();
+        } catch (Exception ex) {
+            System.out.println("The input stream couldn't be closed");
+        }
     }
 
 }

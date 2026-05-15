@@ -26,7 +26,7 @@ public class SummaryTester implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        UUID resourceId = UUID.fromString("6df6b4f1-17bd-4dc8-ad6b-90ad03a71c19");
+        UUID resourceId = UUID.fromString("31c8dd03-f559-4a3a-9fa2-3c241e702dad");
         UUID userId = UUID.fromString("54831360-e278-4b21-bd2f-3764aa232a4c");
         Resource resource = resourceService.getResourceById(userId, resourceId);
 
