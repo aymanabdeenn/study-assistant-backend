@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.UUID;
 
-//@Component
+@Component
 public class QuizTester implements CommandLineRunner {
 
     private final QuizService quizService;
@@ -27,13 +27,13 @@ public class QuizTester implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        UUID resourceId = UUID.fromString("6df6b4f1-17bd-4dc8-ad6b-90ad03a71c19");
+        UUID resourceId = UUID.fromString("edbc68aa-e5a4-40e5-b858-5c9e7954c43f");
         UUID userId = UUID.fromString("54831360-e278-4b21-bd2f-3764aa232a4c");
         Resource resource = resourceService.getResourceById(userId, resourceId);
 
-        String atomicSummary =  ragService.getFullContext(resourceId, 11);
+        String atomicSummary =  ragService.getFullContext(resourceId, 15);
 
-        QuizResponse quiz = quizService.generateQuiz(atomicSummary, (float)1, resource.getBranch().getTopic().getTitle());
+        QuizResponse quiz = quizService.generateQuiz(atomicSummary, "ADVANCED", 15, resource.getBranch().getTopic().getTitle());
         displayQuiz(quiz);
     }
 

@@ -33,11 +33,17 @@ public class QuizService{
         this.quizSchema = objectMapper.readValue(is, new TypeReference<Map<String, Object>>() {});
     }
 
-    public QuizResponse generateQuiz(String chunksContent, float coverage, String topic) {
+    public QuizResponse generateQuiz(String chunksContent, String difficulty, int numOfQuestions, String topic) {
         String userPrompt = "Topic: " + topic + "\nContext:\n" + chunksContent;
 
-        String systemPrompt = promptProviderService.getPrompt("quiz_system");
-        String specializedInstruction = systemPrompt.replace("{{coverage}}", String.valueOf(coverage * 100));
+        String systemPrompt = "";
+        switch(difficulty) {
+            case "FOUNDATIONAL": systemPrompt = promptProviderService.getPrompt("foundational_quiz_system"); break;
+            case "INTERMEDIATE": systemPrompt = promptProviderService.getPrompt("intermediate_quiz_system"); break;
+            case "ADVANCED": systemPrompt = promptProviderService.getPrompt("advanced_quiz_system"); break;
+            default: systemPrompt = promptProviderService.getPrompt("foundational_quiz_system");
+        }
+        String specializedInstruction = systemPrompt.replace("{{numOfQuestions}}", String.valueOf(numOfQuestions));
 
         // 2. Get the RAW JSON string from Google
         ChatResponse rawResponse = chatService.generate(userPrompt, specializedInstruction, chunksContent, quizSchema);

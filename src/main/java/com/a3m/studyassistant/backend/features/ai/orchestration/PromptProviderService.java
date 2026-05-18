@@ -16,7 +16,9 @@ public class PromptProviderService {
 
     @PostConstruct
     public void init() throws IOException {
-        prompts.put("quiz_system", loadPrompt("quiz_system_prompt.txt"));
+        prompts.put("foundational_quiz_system", loadPrompt("foundational_quiz_system_prompt.txt"));
+        prompts.put("intermediate_quiz_system", loadPrompt("intermediate_quiz_system_prompt.txt"));
+        prompts.put("advanced_quiz_system", loadPrompt("advanced_quiz_system_prompt.txt"));
         prompts.put("map_facts_system", loadPrompt("map_facts_system_prompt.txt"));
         prompts.put("reduce_facts_system", loadPrompt("reduce_facts_system_prompt.txt"));
         prompts.put("summary_system", loadPrompt("summary_system_prompt.txt"));
