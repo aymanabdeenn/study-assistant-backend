@@ -30,7 +30,12 @@ public class Resource {
     @Column(name = "size")
     private Float size;
 
-    private String processingStatus = "PENDING";
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private ResourceStatus processingStatus = ResourceStatus.PENDING;
+
+    @Column(name = "error_message", columnDefinition = "TEXT")
+    private String errorMessage;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -96,12 +101,20 @@ public class Resource {
         this.size = size;
     }
 
-    public String getProcessingStatus() {
+    public ResourceStatus getProcessingStatus() {
         return processingStatus;
     }
 
-    public void setProcessingStatus(String processingStatus) {
+    public void setProcessingStatus(ResourceStatus processingStatus) {
         this.processingStatus = processingStatus;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 
     public LocalDateTime getCreatedAt() {

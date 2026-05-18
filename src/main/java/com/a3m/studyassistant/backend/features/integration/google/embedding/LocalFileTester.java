@@ -10,7 +10,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
-@Component
+//@Component
 public class LocalFileTester implements CommandLineRunner {
 
     private final ResourceService resourceService;
@@ -42,7 +42,7 @@ public class LocalFileTester implements CommandLineRunner {
 
         // 3. Open the stream and process
         try (InputStream inputStream = new FileInputStream(testFile)) {
-            resourceService.processResource(inputStream, dummyResource);
+            resourceService.processResource(dummyResource.getId(), "");
         }
 
         System.out.println("✅ Test Complete! Check your database for ResourceChunks.");

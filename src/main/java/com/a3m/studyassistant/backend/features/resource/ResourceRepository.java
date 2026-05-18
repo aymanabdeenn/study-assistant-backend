@@ -9,4 +9,6 @@ import java.util.UUID;
 @Repository
 public interface ResourceRepository extends JpaRepository<Resource, UUID> {
     List<Resource> findByBranchId(UUID branchId);
+    Resource findByUrl(String url);
+    boolean existsByBranchIdAndTitle(UUID branchId, String title);
 }

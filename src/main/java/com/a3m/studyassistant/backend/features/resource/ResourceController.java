@@ -1,6 +1,7 @@
 package com.a3m.studyassistant.backend.features.resource;
 
 import com.a3m.studyassistant.backend.features.resource.dto.ResourceCreationDTO;
+import com.a3m.studyassistant.backend.features.resource.dto.ResourceCreationResponse;
 import com.a3m.studyassistant.backend.features.resource.dto.ResourceModificationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -40,7 +41,17 @@ public class ResourceController {
     public ResponseEntity<?> createResource(@PathVariable UUID branchId, @AuthenticationPrincipal Jwt jwt, @RequestBody ResourceCreationDTO dto) {
         UUID userId = UUID.fromString(jwt.getSubject());
         Resource resource = resourceService.createResource(userId, branchId, dto.getTitle(), dto.getUrl(), dto.getType(), dto.getSize());
-        return ResponseEntity.ok(resource);
+
+        UUID topicId = resource.getBranch().getTopic().getId();
+
+        ResourceCreationResponse response = new ResourceCreationResponse(
+                resource.getId(),
+                resource.getTitle(),
+                resource.getProcessingStatus(),
+                resource.getBranch().getId(),
+                topicId
+        );
+        return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{resourceId}")
