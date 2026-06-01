@@ -29,7 +29,7 @@ public class QuizController {
     public QuizResponse generateQuiz(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID resourceId, @RequestBody QuizParametersDTO dto) {
         UUID userId = UUID.fromString(jwt.getSubject());
         Resource resource = resourceService.getResourceById(userId, resourceId);
-        String atomicSummary =  ragService.getFullContext(resourceId, 15);
+        String atomicSummary =  ragService.getFullContext(userId, resourceId, 15);
 
 //       return quizService.generateQuiz(atomicSummary, "ADVANCED", 15, resource.getBranch().getTitle());
         return quizService.generateQuiz(atomicSummary, dto.difficulty(), dto.numOfQuestions(), resource.getBranch().getTitle());

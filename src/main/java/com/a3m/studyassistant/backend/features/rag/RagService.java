@@ -57,8 +57,7 @@ public class RagService {
         return contextBuilder.toString();
     }
 
-    public String getFullContext(UUID resourceId, int limit) {
-        UUID userId = UUID.fromString("54831360-e278-4b21-bd2f-3764aa232a4c");
+    public String getFullContext(UUID userId, UUID resourceId, int limit) {
         Resource resource = resourceService.getResourceById(userId, resourceId);
 
         // 1. Initial Fast Check
