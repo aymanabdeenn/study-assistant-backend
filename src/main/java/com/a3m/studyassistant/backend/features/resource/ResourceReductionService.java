@@ -22,7 +22,7 @@ public class ResourceReductionService {
     @Transactional
     public ResourceReduction createReduction(Resource resource, String finalSummaryString) {
         ResourceReduction reduction = new ResourceReduction(resource, finalSummaryString);
-        return resourceReductionRepository.save(reduction);
+        resourceReductionRepository.save(reduction);
+        return reduction;
     }
-
 }
