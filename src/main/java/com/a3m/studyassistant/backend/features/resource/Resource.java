@@ -48,6 +48,9 @@ public class Resource {
     @OneToMany(mappedBy = "resource", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ResourceChunk> resourceChunks;
 
+    @OneToOne(mappedBy = "resource", cascade = CascadeType.ALL, orphanRemoval = true)
+    private ResourceReduction resourceReduction;
+
     public Resource() {
         this.resourceChunks = new ArrayList<>();
     }
@@ -107,6 +110,17 @@ public class Resource {
 
     public void setProcessingStatus(ResourceStatus processingStatus) {
         this.processingStatus = processingStatus;
+    }
+
+    public ResourceReduction getResourceReduction() {
+        return resourceReduction;
+    }
+
+    public void setResourceReduction(ResourceReduction resourceReduction) {
+        this.resourceReduction = resourceReduction;
+        if (resourceReduction != null && resourceReduction.getResource() != this) {
+            resourceReduction.setResource(this);
+        }
     }
 
     public String getErrorMessage() {
