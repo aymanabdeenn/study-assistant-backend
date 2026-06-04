@@ -8,4 +8,5 @@ import java.util.UUID;
 
 @Repository
 public interface ResourceReductionRepository extends JpaRepository<ResourceReduction, UUID> {
+    ResourceReduction findByResourceId(UUID resourceId);
 }

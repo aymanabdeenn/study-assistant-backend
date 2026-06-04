@@ -86,6 +86,10 @@ public class RagService {
             fileLocks.remove(resourceId);
 
             return atomicSummary;
+//            Resource resource = resourceService.getResourceById(userId, resourceId);
+//
+//            List<String> chunksContent = resourceChunkRepository.findAllContentByResourceId(resourceId);
+//            return mapReduceService.synthesize(chunksContent, resource.getBranch().getTopic().getTitle());
         }
     }
 

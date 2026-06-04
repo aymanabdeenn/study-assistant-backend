@@ -30,7 +30,7 @@ public class SummaryController {
         UUID userId = UUID.fromString(jwt.getSubject());
         Resource resource = resourceService.getResourceById(userId, resourceId);
 
-        String atomicSummary = ragService.getFullContext(resourceId, 15);
+        String atomicSummary = ragService.getFullContext(userId, resourceId, 15);
 //       return summaryService.generateSummary(atomicSummary, (float)0.7, resource.getBranch().getTopic().getTitle());
         return summaryService.generateSummary(atomicSummary, dto.coverage(), resource.getBranch().getTitle());
     }

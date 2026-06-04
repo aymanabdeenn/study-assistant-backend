@@ -9,12 +9,12 @@ import java.util.UUID;
 @Table(name = "resources_reductions")
 public class ResourceReduction {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(columnDefinition = "uuid", updatable = false, nullable = false)
     private UUID id;
 
     @OneToOne
-    @MapsId("resource")
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "resource_id")
     @JsonBackReference
     private Resource resource;
 
@@ -26,9 +26,6 @@ public class ResourceReduction {
     public ResourceReduction(Resource resource, String finalSummaryString) {
         this.resource = resource;
         this.finalSummaryString = finalSummaryString;
-        if(resource != null) {
-            this.id = resource.getId();
-        }
     }
 
     public Resource getResource() {
@@ -37,9 +34,6 @@ public class ResourceReduction {
 
     public void setResource(Resource resource) {
         this.resource = resource;
-        if(resource != null) {
-            this.id = resource.getId();
-        }
     }
 
     public String getFinalSummaryString() {

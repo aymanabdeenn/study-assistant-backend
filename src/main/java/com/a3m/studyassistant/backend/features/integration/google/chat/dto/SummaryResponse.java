@@ -8,6 +8,5 @@ public record SummaryResponse(
         String title,
         String content,
 
-        @JsonProperty("key_takeaways")
         List<String> keyTakeaways
 ) {}

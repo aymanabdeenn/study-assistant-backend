@@ -48,7 +48,7 @@ public class Resource {
     @OneToMany(mappedBy = "resource", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ResourceChunk> resourceChunks;
 
-    @OneToOne(mappedBy = "resource", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "resource", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private ResourceReduction resourceReduction;
 
     public Resource() {

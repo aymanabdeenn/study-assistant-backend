@@ -29,7 +29,7 @@ public class SummaryTester implements CommandLineRunner {
         UUID resourceId = UUID.fromString("edbc68aa-e5a4-40e5-b858-5c9e7954c43f");
         UUID userId = UUID.fromString("54831360-e278-4b21-bd2f-3764aa232a4c");
         Resource resource = resourceService.getResourceById(userId, resourceId);
-        String atomicSummary = ragService.getFullContext(resourceId, 15);
+        String atomicSummary = ragService.getFullContext(userId, resourceId, 15);
 
         SummaryResponse summary = summaryService.generateSummary(atomicSummary, (float)0.7, resource.getBranch().getTopic().getTitle());
         System.out.println(summary.title());

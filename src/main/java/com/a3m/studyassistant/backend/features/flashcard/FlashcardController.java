@@ -30,7 +30,7 @@ public class FlashcardController {
         UUID userId = UUID.fromString(jwt.getSubject());
         Resource resource = resourceService.getResourceById(userId, resourceId);
 
-        String atomicSummary = ragService.getFullContext(resourceId, 11);
+        String atomicSummary = ragService.getFullContext(userId, resourceId, 11);
 //        return flashcardService.generateFlashcard(atomicSummary, "Introduction to python.", 10);
         return flashcardService.generateFlashcard(atomicSummary, resource.getBranch().getTitle(), dto.count());
     }

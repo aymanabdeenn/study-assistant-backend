@@ -30,7 +30,7 @@ public class QuizTester implements CommandLineRunner {
         UUID resourceId = UUID.fromString("a00013ba-07e5-4c53-820e-294c33fb354e");
         UUID userId = UUID.fromString("54831360-e278-4b21-bd2f-3764aa232a4c");
         Resource resource = resourceService.getResourceById(userId, resourceId);
-        String atomicSummary =  ragService.getFullContext(resourceId, 15);
+        String atomicSummary =  ragService.getFullContext(userId, resourceId, 15);
 
         QuizResponse quiz = quizService.generateQuiz(atomicSummary, "ADVANCED", 15, resource.getBranch().getTopic().getTitle());
         displayQuiz(quiz);

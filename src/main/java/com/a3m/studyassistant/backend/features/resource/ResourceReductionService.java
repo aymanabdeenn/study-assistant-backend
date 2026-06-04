@@ -16,13 +16,17 @@ public class ResourceReductionService {
     }
 
     public ResourceReduction getReductionByResourceId(UUID resourceId) {
-        return resourceReductionRepository.findById(resourceId).orElse(null);
+        return resourceReductionRepository.findByResourceId(resourceId);
     }
 
     @Transactional
-    public ResourceReduction createReduction(Resource resource, String finalSummaryString) {
-        ResourceReduction reduction = new ResourceReduction(resource, finalSummaryString);
-        resourceReductionRepository.save(reduction);
-        return reduction;
+    public ResourceReduction createReduction(Resource resource, String summaryText) {
+        ResourceReduction reduction = new ResourceReduction();
+        reduction.setFinalSummaryString(summaryText);
+
+        reduction.setResource(resource);
+        resource.setResourceReduction(reduction);
+
+        return resourceReductionRepository.save(reduction);
     }
 }
