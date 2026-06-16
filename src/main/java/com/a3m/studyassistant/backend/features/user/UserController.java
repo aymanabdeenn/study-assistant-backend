@@ -61,4 +61,11 @@ public class UserController {
          return ResponseEntity.ok("The user " + user.getEmail() + " has been updated successfully!");
     }
 
+    @GetMapping
+    public ResponseEntity<User> getUser(@AuthenticationPrincipal Jwt jwt) {
+        UUID userId = UUID.fromString(jwt.getSubject());
+        User user = userService.getUserById(userId);
+        return ResponseEntity.ok(user);
+    }
+
 }
