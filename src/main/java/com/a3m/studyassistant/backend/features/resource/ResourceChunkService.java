@@ -16,7 +16,7 @@ public class ResourceChunkService {
         this.resourceChunkRepository = resourceChunkRepository;
     }
 
-    public List<ResourceChunk> getChunksList(UUID resourceId, String queryEmbedding, int limit) {
+    public List<ResourceChunkProjection> getChunksList(UUID resourceId, String queryEmbedding, int limit) {
         return resourceChunkRepository.findSimilarChunks(resourceId, queryEmbedding, limit);
     }
 

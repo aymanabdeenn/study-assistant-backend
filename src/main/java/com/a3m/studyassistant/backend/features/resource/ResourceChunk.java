@@ -2,6 +2,10 @@ package com.a3m.studyassistant.backend.features.resource;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Array;
+import org.hibernate.annotations.JavaType;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.UUID;
 
@@ -22,6 +26,8 @@ public class ResourceChunk {
     @Column(name = "chunk_index")
     private Long chunkIndex;
 
+    @JdbcTypeCode(SqlTypes.VECTOR)
+    @Array(length = 1536)
     @Column(columnDefinition = "vector(1536)")
     private float[] embedding;
 

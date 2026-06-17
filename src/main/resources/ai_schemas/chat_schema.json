@@ -1,0 +1,19 @@
+{
+  "type": "object",
+  "properties": {
+    "answer": {
+      "type": "string",
+      "description": "The core concise answer to the user's question, using Markdown for styling code blocks, bold text, or key formulas."
+    },
+    "details": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Step-by-step breakdowns, key points, or supporting facts. Each item represents a clean bullet point for the UI."
+    },
+    "followUpConcept": {
+      "type": "string",
+      "description": "A single concept or topic name the student should explore next based on this conversation."
+    }
+  },
+  "required": ["answer", "details", "followUpConcept"]
+}

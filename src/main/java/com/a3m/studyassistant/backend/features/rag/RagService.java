@@ -31,22 +31,21 @@ public class RagService {
         this.mapReduceService = mapReduceService;
     }
 
-    public String getRelevantContext(UUID resourceId, String message,int limit) {
-        UUID userId = UUID.fromString("54831360-e278-4b21-bd2f-3764aa232a4c");
+    public String getRelevantContext(UUID userId ,UUID resourceId, String message,int limit) {
         Resource resource = resourceService.getResourceById(userId, resourceId);
 
         float[] queryVector = googleEmbeddingService.getEmbedding(message);
 
         String vectorString = formatVectorForPostgres(queryVector);
 
-        List<ResourceChunk> chunks = resourceChunkRepository.findSimilarChunks(
+        List<ResourceChunkProjection> chunks = resourceChunkRepository.findSimilarChunks(
                 resourceId,
                 vectorString,
                 limit // Limit to 10 chunks to avoid hitting LLM token limits
         );
 
         StringBuilder contextBuilder = new StringBuilder();
-        for(ResourceChunk chunk: chunks) {
+        for(ResourceChunkProjection chunk : chunks) {
             contextBuilder.append("[Source Page: ")
                     .append(chunk.getPageNumber())
                     .append("]\n")

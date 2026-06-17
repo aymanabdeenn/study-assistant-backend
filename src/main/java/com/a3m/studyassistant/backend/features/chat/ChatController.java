@@ -30,7 +30,7 @@ public class ChatController {
         UUID resourceId = UUID.fromString(request.resourceId());
         Resource resource = resourceService.getResourceById(userId, resourceId);
 
-        ConversationAgentResponse response = chatService.askAgent(resource.getId(), request.message());
+        ConversationAgentResponse response = chatService.askAgent(userId, resource.getId(), request.message());
 
         return ResponseEntity.ok(response);
     }

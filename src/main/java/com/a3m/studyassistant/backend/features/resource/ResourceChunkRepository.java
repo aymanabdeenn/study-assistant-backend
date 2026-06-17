@@ -17,7 +17,7 @@ public interface ResourceChunkRepository extends JpaRepository<ResourceChunk, UU
                    "ORDER BY rc.embedding <=> cast(:queryEmbedding as vector) " +
                    "LIMIT :limit",
            nativeQuery = true)
-   List<ResourceChunk> findSimilarChunks(
+   List<ResourceChunkProjection> findSimilarChunks(
             @Param("resourceId") UUID resourceId,
             @Param("queryEmbedding") String queryEmbedding,
             @Param("limit") int limit
