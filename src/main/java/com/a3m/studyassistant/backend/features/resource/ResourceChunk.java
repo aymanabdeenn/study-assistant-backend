@@ -29,6 +29,7 @@ public class ResourceChunk {
     @JdbcTypeCode(SqlTypes.VECTOR)
     @Array(length = 1536)
     @Column(columnDefinition = "vector(1536)")
+    @Transient
     private float[] embedding;
 
     @JsonIgnore

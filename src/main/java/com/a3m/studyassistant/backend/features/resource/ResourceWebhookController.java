@@ -15,7 +15,7 @@ public class ResourceWebhookController {
     private String supabaseBucketName;
 
     @Value("${supabase.storage.public-endpoint}")
-    private String supabaseStoragePublicEndpoint; // Clean, pre-packaged root path
+    private String supabaseStoragePublicEndpoint;
 
     public ResourceWebhookController(ResourceService resourceService) {
         this.resourceService = resourceService;
@@ -25,34 +25,35 @@ public class ResourceWebhookController {
     public ResponseEntity<Void> handleStorageWebhook(@RequestBody SupabaseStorageWebhookPayload payload) {
         if ("INSERT".equals(payload.getType()) && supabaseBucketName.equals(payload.getRecord().getBucketId())) {
 
-            // 1. Get the full path string (e.g. "54831360-.../8bc3.../.../067223bd-bb6b-404d-bc34-656fc00490df-2_2_process.pdf")
             String fullPath = payload.getRecord().getName();
 
-            // 2. Extract the actual filename segment (the part after the last forward slash)
-            String filenameSegment = fullPath.substring(fullPath.lastIndexOf("/") + 1);
+            // 1. ISOLATE THE FILENAME FROM THE DIRECTORY FOLDERS
+            // e.g., turns "user-uuid/topic/branch/resource-uuid-file.pdf" into just "resource-uuid-file.pdf"
+            String[] pathSegments = fullPath.split("/");
+            String isolatedFileName = pathSegments[pathSegments.length - 1];
 
-            // 3. Extract the leading resource UUID from that filename segment
-            String resourceIdStr = filenameSegment.split("-")[0] + "-" +
-                    filenameSegment.split("-")[1] + "-" +
-                    filenameSegment.split("-")[2] + "-" +
-                    filenameSegment.split("-")[3] + "-" +
-                    filenameSegment.split("-")[4];
+            // 2. PERFORM REGEX STRICTLY ON THE ISOLATED FILENAME
+            java.util.regex.Pattern uuidPattern = java.util.regex.Pattern.compile(
+                    "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
+            );
+            java.util.regex.Matcher matcher = uuidPattern.matcher(isolatedFileName);
 
-            // Clean up the trailing parts if a dash was inside the original file title
-            if (resourceIdStr.contains(".")) {
-                resourceIdStr = resourceIdStr.split("\\.")[0];
+            java.util.UUID resourceId;
+            if (matcher.find()) {
+                resourceId = java.util.UUID.fromString(matcher.group());
+            } else {
+                System.err.println("CRITICAL: Webhook received filename containing no Resource UUID: " + isolatedFileName);
+                return ResponseEntity.ok().build();
             }
 
-            java.util.UUID resourceId = java.util.UUID.fromString(resourceIdStr.substring(0, 36));
-
-            // 4. Reconstruct the public target URL
+            // 3. Reconstruct the public target URL
             String filePublicUrl = supabaseStoragePublicEndpoint +
                     payload.getRecord().getBucketId() + "/" +
-                    payload.getRecord().getName();
+                    fullPath;
 
-            System.out.println("Targeting verified Resource ID directly: " + resourceId);
+            System.out.println("Webhook successfully isolated true Resource ID: " + resourceId);
 
-            // 5. Pass it safely to your async polling loop
+            // 4. Fire the async pipeline
             resourceService.processResource(resourceId, filePublicUrl);
         }
 
